@@ -1,0 +1,4 @@
+/* overriding bootstrap class default property*/
+.navbar-nav {
+  flex-direction: row;
+}
