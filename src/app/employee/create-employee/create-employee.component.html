@@ -1,1 +1,66 @@
-<p>create-employee works!</p>
+<!--[formGroup] directive to bind view template to the form group model(in our case binding below form to employeeForm of type FormGroup declared in component.ts file).
+Similary, using formControlName attribute to bind input control(eg. fullName) to its associated fullName instance of type FormControl declared in component.ts file, but
+here we are binding to just string name.
+
+Difference between formControlName vs [formControlName] is that in first one, formControlName was declared in FormGroup in component(which is our case), 
+in second one is what is was declared as independent FormControl in component.
+
+(ngSubmit) to bind method to handle submit action
+
+Note: With brackets we bind variable, which is declared in our component. Without brackets we bind value of variable.
+-->
+<form class="form-horizontal" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Create Employee</h3>
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="fullName">Full Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="fullName" formControlName="fullName" type="text">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="email">Email</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="email" formControlName="email" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </div>
+</form>
+
+<br />
+<br />
+
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th class="col">FormGroup</th>
+            <th class="col">FormControl(fullName)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <!-- employeeForm.value | json passing the value through a json pipe to display properly otherwise it would just display [object Object] -->
+            <td>
+                touched: {{ employeeForm.touched }} <br />
+                dirty: {{ employeeForm.dirty }} <br />
+                valid: {{ employeeForm.valid }} <br />
+                value: {{ employeeForm.value | json }}
+            </td>
+            <td>
+                touched: {{ employeeForm.controls.fullName.touched }} <br />
+                dirty: {{ employeeForm.controls.fullName.dirty }} <br />
+                valid: {{ employeeForm.controls.fullName.valid }} <br />
+                value: {{ employeeForm.controls.fullName.value | json }}
+            </td>
+        </tr>
+    </tbody>
+</table>
