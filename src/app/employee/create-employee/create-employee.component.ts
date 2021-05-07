@@ -20,7 +20,13 @@ export class CreateEmployeeComponent implements OnInit {
  createForm(){
   this.employeeForm = this.formBuilder.group({
     fullName: '',
-    email: ''
+    email: '',
+    // Creating nested formgroup skills
+    skills: new FormGroup({
+      skillName: new FormControl(),
+      proficiency: new FormControl(),
+      experienceInYears: new FormControl()
+    })
   });
  }
 
