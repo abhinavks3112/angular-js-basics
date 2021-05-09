@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormBuilder, Validators } from '@angular/forms';
+import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-create-employee',
@@ -12,6 +12,8 @@ export class CreateEmployeeComponent implements OnInit {
     fullName: new FormControl(),
     email: new FormControl()
   });
+
+  fullNameLength: number = 0;
 
    /*
    FormBuilder class provides a syntactic sugar or another way of declaring the formgroup, forcontrol and array instance.
@@ -33,7 +35,42 @@ export class CreateEmployeeComponent implements OnInit {
       experienceInYears: ['']
     })
   });
+
+ // Subscribing to value change event of form group and performing action on value change
+ this.employeeForm.valueChanges.subscribe((value: any) => {
+  return console.log(JSON.stringify(value));
+ })  
+
+//   // Subscribing to value change event of form control and performing action on value change
+//   this.employeeForm.controls.fullName.valueChanges.subscribe((value: string) => {
+//     return this.fullNameLength = value.length;
+//   })
+
  }
+
+ logKeyValuePairs(group: FormGroup): void {
+   // loop through each key in the FormGroup
+  Object.keys(group.controls).forEach((key: string) => {
+    // Get a reference to the control using the FormGroup.get() method
+    const abstractFormControl = group.get(key);
+    /* If the control is an instance of FormGroup i.e a nested FormGroup
+    then recursively call this same method (logKeyValuePairs) passing it
+    the FormGroup so we can get to the form controls in it*/
+    if(abstractFormControl instanceof FormGroup && abstractFormControl)
+    {
+      this.logKeyValuePairs(abstractFormControl);
+      // Disabling the nested form group only
+      // abstractFormControl.disable();
+    }
+    else if(abstractFormControl)
+    {
+       // If the control is not a FormGroup then we know it's a FormControl
+      console.log('Key = '+ key + ", Value = " + abstractFormControl.value );
+      // Disabling all the form controls
+       abstractFormControl.disable();
+    }
+  });
+} 
 
   ngOnInit(): void {
    
@@ -64,6 +101,8 @@ export class CreateEmployeeComponent implements OnInit {
         experienceInYears: "6"
       } 
     })
+
+    this.logKeyValuePairs(this.employeeForm);
   }
 
   onSubmit(): void {
