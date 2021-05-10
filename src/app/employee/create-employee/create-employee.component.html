@@ -23,18 +23,12 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                         and there is validation error
                         2. "invalid-feedback" bootstrap class: Showing error message in case of validation error by wrapping the message in this class
                         3. *ngIf - checking condition to show different message on different condition
+                        4. (blur) - binding to lose focus event in parantheses ie. blur event
                     -->
                     <input class="form-control" id="fullName" formControlName="fullName" type="text"
-                        [ngClass]="{'is-invalid': employeeForm.controls.fullName.errors && ((employeeForm.controls.fullName.touched) || (employeeForm.controls.fullName.dirty))}">
-                    <div class="invalid-feedback"
-                        *ngIf="employeeForm.controls.fullName.errors && ((employeeForm.controls.fullName.touched) || (employeeForm.controls.fullName.dirty))">
-                        <span *ngIf="employeeForm.controls.fullName.errors.required">
-                            Please enter your full name
-                        </span>
-                        <span
-                            *ngIf="employeeForm.controls.fullName.errors.minlength || employeeForm.controls.fullName.errors.maxlength">
-                            Full name must be greater than 2 characters and less than 30 characters
-                        </span>
+                        [ngClass]="{'is-invalid': formErrors.fullName}" (blur)="logValidationErrors()">
+                    <div class="invalid-feedback" *ngIf="formErrors.fullName">
+                        <span>{{ formErrors.fullName }}</span>
                     </div>
                     <!-- Binding component property through interpolation -->
                     <!-- <label>{{ fullNameLength }}</label> -->
@@ -42,9 +36,39 @@ Note: With brackets we bind variable, which is declared in our component. Withou
             </div>
 
             <div class="form-group">
+                <label class="col-sm-4 control-label">Contact Preference</label>
+                <!-- Adding radio buttons for Proficiency field-->
+                <div class="col-md-10">
+                    <label class="radio-inline px-3">
+                        <input class="form-control" formControlName="contactPreference" type="radio" value="email">
+                        Email
+                    </label>
+                    <label class="radio-inline px-3">
+                        <input class="form-control" formControlName="contactPreference" type="radio" value="phone">
+                        Phone
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="col-sm-4 control-label" for="email">Email</label>
                 <div class="col-sm-8">
-                    <input class="form-control" id="email" formControlName="email" type="text">
+                    <input class="form-control" id="email" formControlName="email" type="text"
+                        [ngClass]="{'is-invalid': formErrors.email}" (blur)="logValidationErrors()">
+                    <div class="invalid-feedback" *ngIf="formErrors.email">
+                        <span>{{ formErrors.email }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label" for="phone">Phone</label>
+                <div class="col-sm-8">
+                    <input class="form-control" id="phone" formControlName="phone" type="text"
+                        [ngClass]="{'is-invalid': formErrors.phone}" (blur)="logValidationErrors()">
+                    <div class="invalid-feedback" *ngIf="formErrors.phone">
+                        <span>{{ formErrors.phone }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -54,7 +78,11 @@ Note: With brackets we bind variable, which is declared in our component. Withou
 
                     <label class="col-sm-4 control-label" for="skillName">Skill</label>
                     <div class="col-sm-8 px-3">
-                        <input class="form-control" id="skillName" formControlName="skillName" type="text">
+                        <input class="form-control" id="skillName" formControlName="skillName" type="text"
+                            [ngClass]="{'is-invalid': formErrors.skillName}" (blur)="logValidationErrors()">
+                        <div class="invalid-feedback" *ngIf="formErrors.skillName">
+                            <span>{{ formErrors.skillName }}</span>
+                        </div>
                     </div>
 
                 </div>
@@ -63,29 +91,36 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                     <label class="col-sm-4 control-label" for="experienceInYears">Experience (In Years)</label>
                     <div class="col-sm-8 px-3">
                         <input class="form-control" id="experienceInYears" formControlName="experienceInYears"
-                            type="text">
+                            type="text" [ngClass]="{'is-invalid': formErrors.experienceInYears}"
+                            (blur)="logValidationErrors()">
+                        <div class="invalid-feedback" *ngIf="formErrors.experienceInYears">
+                            <span>{{ formErrors.experienceInYears }}</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-md-2 control-label" for="proficiency">Proficiency</label>
+                    <label class="col-md-2 control-label">Proficiency</label>
                     <!-- Adding radio buttons for Proficiency field-->
                     <div class="col-md-10">
                         <label class="radio-inline px-3">
-                            <input class="form-control" id="proficiency" formControlName="proficiency" type="radio"
-                                value="beginner">
+                            <input class="form-control" formControlName="proficiency" type="radio" value="beginner"
+                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
                             Beginner
                         </label>
                         <label class="radio-inline px-3">
-                            <input class="form-control" id="proficiency" formControlName="proficiency" type="radio"
-                                value="intermediate">
+                            <input class="form-control" formControlName="proficiency" type="radio" value="intermediate"
+                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
                             Intermediate
                         </label>
                         <label class="radio-inline px-3">
-                            <input class="form-control" id="proficiency" formControlName="proficiency" type="radio"
-                                value="advanced">
+                            <input class="form-control" formControlName="proficiency" type="radio" value="advanced"
+                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
                             Advanced
                         </label>
+                        <div class="invalid-feedback" *ngIf="formErrors.proficiency">
+                            <span>{{ formErrors.proficiency }}</span>
+                        </div>
                     </div>
                 </div>
 
