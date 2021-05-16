@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl } from '@angular/forms';
+import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl, EmailValidator } from '@angular/forms';
+import { CustomValidators } from  '../../shared/custom.validators';
 
 @Component({
   selector: 'app-create-employee',
   templateUrl: './create-employee.component.html',
   styleUrls: ['./create-employee.component.css']
 })
+
 export class CreateEmployeeComponent implements OnInit {
 
   employeeForm = this.formBuilder.group({
@@ -15,28 +17,37 @@ export class CreateEmployeeComponent implements OnInit {
 
   fullNameLength: number = 0;
 
+  domainWeWantToValidateAgainst: string = "test.com";
+
   // Contain validation message for each validation for each form control
   // [key: string]: any: defining the type of index/key this object accepts(string in our case) and the type of value it accepts(any in our case)
   validationMessages: { [key: string]: any } =  {
     'fullName' : {
-      'required': 'Full Name is required',
-      'minlength': 'Full Name must be greater than 2 characters',
-      'maxlength': 'Full Name must be greater less than 30 characters',
+      'required': 'Full Name is required.',
+      'minlength': 'Full Name must be greater than 2 characters.',
+      'maxlength': 'Full Name must be greater less than 30 characters.',
     },
     'email': {
-      'required': 'Email is required'
+      'required': 'Email is required',
+      'emailDomain': 'Email domain must be ' + this.domainWeWantToValidateAgainst // error message for our created custom validation error
+    },
+    'confirmEmail': {
+      'required': 'Confirm Email is required.'
+    },
+    'emailGroup': {
+      'emailMismatch' : 'Email and Confirm Email do not match.'
     },
     'phone': {
-      'required': 'Phone is required'
+      'required': 'Phone is required.'
     },
     'skillName': {
-      'required': 'Skill Name is required'
+      'required': 'Skill Name is required.'
     },
     'experienceInYears': {
-      'required': 'Experience (In Years) is required'
+      'required': 'Experience (In Years) is required.'
     },
     'proficiency': {
-      'required': 'Proficiency is required'
+      'required': 'Proficiency is required.'
     }
   };
 
@@ -44,6 +55,8 @@ export class CreateEmployeeComponent implements OnInit {
   formErrors: { [key: string]: any} = {
     'fullName' : '',
     'email': '',
+    'confirmEmail': '',
+    'emailGroup': '',
     'phone': '',
     'skillName': '',
     'experienceInYears': '',
@@ -64,7 +77,10 @@ export class CreateEmployeeComponent implements OnInit {
   this.employeeForm = this.formBuilder.group({
     fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
     contactPreference: ['email'],
-    email: ['', Validators.required],
+    emailGroup: this.formBuilder.group({
+      email: ['', [Validators.required, CustomValidators.emailDomain(this.domainWeWantToValidateAgainst)]], // adding custom validator
+      confirmEmail: ['', Validators.required]
+    }, { validator: CustomValidators.matchEmail} ),
     phone: [''], // will dynamically add validation
     // Creating nested formgroup skills
     skills: this.formBuilder.group({
@@ -91,19 +107,40 @@ export class CreateEmployeeComponent implements OnInit {
  */
  onContactPreferenceChange(selectedValue: string) {
   const phoneControl = this.employeeForm.controls.phone;
-  const emailControl = this.employeeForm.controls.email;
+  const emailGroupControl = this.employeeForm.controls.emailGroup;
+  const emailControl = emailGroupControl.get('email');
+  const confirmEmailControl = emailGroupControl.get('confirmEmail');
+
   if(selectedValue === 'phone')
   {
     phoneControl.setValidators(Validators.required);
-    emailControl.clearValidators();
+    emailGroupControl.clearValidators();
+    if(emailControl != null)  {
+      emailControl.clearValidators();
+    }
+    if(confirmEmailControl != null)  {
+      confirmEmailControl.clearValidators();
+    }
   }
   else
   {
     phoneControl.clearValidators();
-    emailControl.setValidators(Validators.required);
+    emailGroupControl.setValidators(CustomValidators.matchEmail);
+    if(emailControl != null)  {
+      emailControl.setValidators([Validators.required, CustomValidators.emailDomain(this.domainWeWantToValidateAgainst)]);
+    }
+    if(confirmEmailControl != null)  {
+      confirmEmailControl.setValidators(Validators.required);
+    }
   }
   // Immediatly call the validate event on the control
-  emailControl.updateValueAndValidity();
+  emailGroupControl.updateValueAndValidity();
+  if(emailControl != null)  {
+    emailControl.updateValueAndValidity();
+  }
+  if(confirmEmailControl != null)  {
+    confirmEmailControl.updateValueAndValidity();
+  }
   phoneControl.updateValueAndValidity();
  }
 
@@ -114,33 +151,32 @@ export class CreateEmployeeComponent implements OnInit {
   Object.keys(group.controls).forEach((key: string) => {
     // Get a reference to the control using the FormGroup.get() method
     const abstractFormControl = group.get(key);
+
+    // Clear the existing validation error messages, if any
+    this.formErrors[key] = '';
+    /*
+      Check if the control is not valid and it has either been touched or its value changed, in that case display the validation
+      error message for that control only
+    */
+    if(abstractFormControl && !abstractFormControl.valid && abstractFormControl.touched || abstractFormControl?.dirty){
+      // get all the validation message for particular form control that has failed the vaildation(since we are checking valid condition in if)
+      const messages =  this.validationMessages[key];
+      for(const errorKey in abstractFormControl.errors)
+      {
+        /* Get the validation message corresponding to the failed validation type(eg, required, minlength or maxlength.) identified by errorKey, 
+        for particular form control(identified by key) and assign it to the error message field against the form control name error field in formErrors.
+        The UI will bind to this object to display the validation errors.
+        */
+        this.formErrors[key] += messages[errorKey] + ' ';
+      }
+    }
+
     /* If the control is an instance of FormGroup i.e a nested FormGroup
     then recursively call this same method (logKeyValuePairs) passing it
     the FormGroup so we can get to the form controls in it*/
     if(abstractFormControl instanceof FormGroup && abstractFormControl)
     {
       this.logValidationErrors(abstractFormControl);
-    }
-    else 
-    {
-      // Clear the existing validation error messages, if any
-      this.formErrors[key] = '';
-      /*
-        Check if the control is not valid and it has either been touched or its value changed, in that case display the validation
-        error message for that control only
-      */
-      if(abstractFormControl && !abstractFormControl.valid && abstractFormControl.touched || abstractFormControl?.dirty){
-        // get all the validation message for particular form control that has failed the vaildation(since we are checking valid condition in if)
-        const messages =  this.validationMessages[key];
-        for(const errorKey in abstractFormControl.errors)
-        {
-          /* Get the validation message corresponding to the failed validation type(eg, required, minlength or maxlength.) identified by errorKey, 
-          for particular form control(identified by key) and assign it to the error message field against the form control name error field in formErrors.
-          The UI will bind to this object to display the validation errors.
-          */
-          this.formErrors[key] += messages[errorKey] + ' ';
-        }
-      }
     }
   });
 } 

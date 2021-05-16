@@ -50,13 +50,27 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label" for="email">Email</label>
-                <div class="col-sm-8">
-                    <input class="form-control" id="email" formControlName="email" type="text"
-                        [ngClass]="{'is-invalid': formErrors.email}" (blur)="logValidationErrors()">
-                    <div class="invalid-feedback" *ngIf="formErrors.email">
-                        <span>{{ formErrors.email }}</span>
+            <div formGroupName="emailGroup">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="email">Email</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" id="email" formControlName="email" type="text"
+                            [ngClass]="{'is-invalid': formErrors.email }" (blur)="logValidationErrors()">
+                        <div class="invalid-feedback" *ngIf="formErrors.email">
+                            <span>{{ formErrors.email }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="confirmEmail">Confirm Email</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" id="confirmEmail" formControlName="confirmEmail" type="text"
+                            [ngClass]="{'is-invalid': formErrors.confirmEmail || formErrors.emailGroup}"
+                            (blur)="logValidationErrors()">
+                        <div class="invalid-feedback" *ngIf="formErrors.confirmEmail || formErrors.emailGroup">
+                            <span>{{ formErrors.confirmEmail ? formErrors.confirmEmail : formErrors.emailGroup }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
