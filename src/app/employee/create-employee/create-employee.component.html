@@ -175,7 +175,7 @@ Note: With brackets we bind variable, which is declared in our component. Withou
         <br />
         <br />
         <div class="card-footer">
-            <button class="btn btn-primary mr-3" type="submit">Save</button>
+            <button class="btn btn-primary mr-3" type="submit" [disabled]="employeeForm.invalid">Save</button>
             <button class="btn btn-primary" type="button" (click)="onLoadDataClick()">Load Data</button>
         </div>
     </div>

@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl, EmailValidator, FormArray } from '@angular/forms';
 import { CustomValidators } from  '../../shared/custom.validators';
 import { faWindowClose } from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute } from '@angular/router';
+import { EmployeeService } from '../employee.service';
+import { IEmployee } from '../IEmployee';
+import { ISkill } from '../ISkill';
 
 @Component({
   selector: 'app-create-employee',
@@ -12,6 +16,7 @@ import { faWindowClose } from '@fortawesome/free-solid-svg-icons';
 export class CreateEmployeeComponent implements OnInit {
 
   faWindowClose = faWindowClose;
+
   employeeForm = this.formBuilder.group({
     fullName: new FormControl(),
     email: new FormControl()
@@ -53,9 +58,67 @@ export class CreateEmployeeComponent implements OnInit {
    FormBuilder class provides a syntactic sugar or another way of declaring the formgroup, forcontrol and array instance.
    It must be injected into the class's constructor first to use it elsewere on the form
   */
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder,
+    private _route: ActivatedRoute,
+    private employeeService: EmployeeService
+    ) {
     this.createForm();
   }
+
+  ngOnInit(): void {
+    
+    this.employeeForm.controls.contactPreference.valueChanges.subscribe((data: string) => {
+      this.onContactPreferenceChange(data);
+    })
+    
+    // Subscribing to value change event of form group and performing action on value change
+    this.employeeForm.valueChanges.subscribe((value: any) => {
+      this.logValidationErrors(this.employeeForm);
+    })  
+
+    const empId = Number(this._route.snapshot.paramMap.get('id'));
+    this._route.paramMap.subscribe(params => {
+      if(empId){
+        this.getEmployee(empId);
+      }
+    });
+  }
+
+  getEmployee(id: number){
+    this.employeeService.getEmployee(id).subscribe(
+      (employee: IEmployee) => this.editEmployee(employee),
+      (err: any) => console.log(err)
+    );
+  }
+
+  editEmployee(employee: IEmployee){
+    this.employeeForm.patchValue({
+      fullName: employee.fullName,
+      contactPreference: employee.contactPreference,
+      emailGroup: {
+        email: employee.email,
+        confirmEmail: employee.email
+      },
+      phone: employee.phone
+    })
+  }
+
+  addSkillFormGroup(): FormGroup {
+    return this.formBuilder.group({
+      skillName: ['', Validators.required],
+      proficiency: ['', Validators.required],
+      experienceInYears: ['', Validators.required]
+    })
+  }
+
+  addSkillButtonClick(): void{
+    (this.employeeForm.get('skills') as FormArray).push(this.addSkillFormGroup());
+  }
+  
+  removeSkillButtonClick(skillGroupIndex: number): void{
+    (this.employeeForm.get('skills') as FormArray).removeAt(skillGroupIndex);
+  }
+
 
  createForm(){
  
@@ -137,13 +200,15 @@ export class CreateEmployeeComponent implements OnInit {
     // Clear the existing validation error messages, if any
     this.formErrors[key] = '';
     /*
-      Check if the control is not valid and it has either been touched or its value changed, in that case display the validation
+      Check if the control is not valid and it has either been touched or its value changed and also if the control
+      is not empty string, in that case display the validation
       error message for that control only
     */
-    if(abstractFormControl && !abstractFormControl.valid && abstractFormControl.touched || abstractFormControl?.dirty){
+    if(abstractFormControl && !abstractFormControl.valid && abstractFormControl.touched || abstractFormControl?.dirty
+      || abstractFormControl?.value !== '' ){
       // get all the validation message for particular form control that has failed the vaildation(since we are checking valid condition in if)
       const messages =  this.validationMessages[key];
-      for(const errorKey in abstractFormControl.errors)
+      for(const errorKey in abstractFormControl?.errors)
       {
         /* Get the validation message corresponding to the failed validation type(eg, required, minlength or maxlength.) identified by errorKey, 
         for particular form control(identified by key) and assign it to the error message field against the form control name error field in formErrors.
@@ -186,35 +251,6 @@ export class CreateEmployeeComponent implements OnInit {
       }
     });
   } 
-
-  ngOnInit(): void {
-    
-    this.employeeForm.controls.contactPreference.valueChanges.subscribe((data: string) => {
-      this.onContactPreferenceChange(data);
-    })
-    
-    // Subscribing to value change event of form group and performing action on value change
-    this.employeeForm.valueChanges.subscribe((value: any) => {
-      this.logValidationErrors(this.employeeForm);
-    })  
-  }
-
-  addSkillFormGroup(): FormGroup {
-    return this.formBuilder.group({
-      skillName: ['', Validators.required],
-      proficiency: ['', Validators.required],
-      experienceInYears: ['', Validators.required]
-    })
-  }
-
-  addSkillButtonClick(): void{
-    (this.employeeForm.get('skills') as FormArray).push(this.addSkillFormGroup());
-  }
-  
-  removeSkillButtonClick(skillGroupIndex: number): void{
-    (this.employeeForm.get('skills') as FormArray).removeAt(skillGroupIndex);
-  }
-
 
   onLoadDataClick(): void
   {

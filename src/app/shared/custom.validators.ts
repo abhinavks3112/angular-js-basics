@@ -36,7 +36,7 @@ export class CustomValidators{
         const confirmEmailControl = group.get('confirmEmail');
 
         // emailControl?.pristine: the user hasn't typed anything then return null
-        if(emailControl && confirmEmailControl && emailControl.value === confirmEmailControl.value || emailControl?.pristine) {
+        if(emailControl && confirmEmailControl && emailControl.value === confirmEmailControl.value || (confirmEmailControl?.pristine && confirmEmailControl.value === '' )) {
             return null; // return null when matched, means no validation error
         }
         else{
