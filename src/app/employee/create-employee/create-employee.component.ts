@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl, EmailValidator } from '@angular/forms';
+import { FormControl, FormBuilder, Validators, FormGroup, AbstractControl, EmailValidator, FormArray } from '@angular/forms';
 import { CustomValidators } from  '../../shared/custom.validators';
+import { faWindowClose } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-create-employee',
@@ -10,6 +11,7 @@ import { CustomValidators } from  '../../shared/custom.validators';
 
 export class CreateEmployeeComponent implements OnInit {
 
+  faWindowClose = faWindowClose;
   employeeForm = this.formBuilder.group({
     fullName: new FormControl(),
     email: new FormControl()
@@ -39,28 +41,11 @@ export class CreateEmployeeComponent implements OnInit {
     },
     'phone': {
       'required': 'Phone is required.'
-    },
-    'skillName': {
-      'required': 'Skill Name is required.'
-    },
-    'experienceInYears': {
-      'required': 'Experience (In Years) is required.'
-    },
-    'proficiency': {
-      'required': 'Proficiency is required.'
     }
   };
 
   // Will be assigned validation message based on the field which fails validaton and which validation type it fails
   formErrors: { [key: string]: any} = {
-    'fullName' : '',
-    'email': '',
-    'confirmEmail': '',
-    'emailGroup': '',
-    'phone': '',
-    'skillName': '',
-    'experienceInYears': '',
-    'proficiency': ''
   }
 
 
@@ -83,11 +68,9 @@ export class CreateEmployeeComponent implements OnInit {
     }, { validator: CustomValidators.matchEmail} ),
     phone: [''], // will dynamically add validation
     // Creating nested formgroup skills
-    skills: this.formBuilder.group({
-      skillName: ['', Validators.required],
-      proficiency: ['', Validators.required],
-      experienceInYears: ['', Validators.required]
-    })
+    skills: this.formBuilder.array([
+      this.addSkillFormGroup()
+    ])
   });
 
  // Subscribing to value change event of form group and performing action on value change
@@ -144,7 +127,6 @@ export class CreateEmployeeComponent implements OnInit {
   phoneControl.updateValueAndValidity();
  }
 
-
  // Passing employeeForm as default value
  logValidationErrors(group: FormGroup = this.employeeForm): void {
   // loop through each key in the FormGroup
@@ -171,7 +153,7 @@ export class CreateEmployeeComponent implements OnInit {
       }
     }
 
-    /* If the control is an instance of FormGroup i.e a nested FormGroup
+    /* If the abstractFormControl is an instance of FormGroup i.e a nested FormGroup
     then recursively call this same method (logKeyValuePairs) passing it
     the FormGroup so we can get to the form controls in it*/
     if(abstractFormControl instanceof FormGroup && abstractFormControl)
@@ -207,18 +189,65 @@ export class CreateEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     
-  this.employeeForm.controls.contactPreference.valueChanges.subscribe((data: string) => {
-    this.onContactPreferenceChange(data);
-  })
-  
-  // Subscribing to value change event of form group and performing action on value change
-  this.employeeForm.valueChanges.subscribe((value: any) => {
-    this.logValidationErrors(this.employeeForm);
-  })  
+    this.employeeForm.controls.contactPreference.valueChanges.subscribe((data: string) => {
+      this.onContactPreferenceChange(data);
+    })
+    
+    // Subscribing to value change event of form group and performing action on value change
+    this.employeeForm.valueChanges.subscribe((value: any) => {
+      this.logValidationErrors(this.employeeForm);
+    })  
   }
+
+  addSkillFormGroup(): FormGroup {
+    return this.formBuilder.group({
+      skillName: ['', Validators.required],
+      proficiency: ['', Validators.required],
+      experienceInYears: ['', Validators.required]
+    })
+  }
+
+  addSkillButtonClick(): void{
+    (this.employeeForm.get('skills') as FormArray).push(this.addSkillFormGroup());
+  }
+  
+  removeSkillButtonClick(skillGroupIndex: number): void{
+    (this.employeeForm.get('skills') as FormArray).removeAt(skillGroupIndex);
+  }
+
 
   onLoadDataClick(): void
   {
+    const formArray = this.formBuilder.array([
+      new FormControl('John', Validators.required),
+      new FormControl('IT', Validators.required),
+      new FormControl('Mike', Validators.required),
+    ]);
+    const formGroup= this.formBuilder.group([
+      new FormControl('John', Validators.required),
+      new FormControl('IT', Validators.required),
+      new FormControl('Mike', Validators.required),
+    ]);
+
+    console.log(formArray.value);
+    console.log(formGroup.value);
+
+    for (const control of formArray.controls)
+    {
+      if(control instanceof FormControl)
+      {
+        console.log("It is a form control");
+      }
+      if(control instanceof FormGroup)
+      {
+        console.log("It is a form group");
+      }
+      if(control instanceof FormArray)
+      {
+        console.log("It is a form array");
+      }
+    }
+
     /*
      * when setValue is used then all control values MUST be given, we cannot leave any property out(eg. not giving value for skills will give error) 
      * when patchValue is used then we can update a subset of form controls Or we CAN update all values also
@@ -244,8 +273,13 @@ export class CreateEmployeeComponent implements OnInit {
     // })
 
     // this.logKeyValuePairs(this.employeeForm);
-    this.logValidationErrors(this.employeeForm);
-    console.log(this.formErrors);
+    // this.logValidationErrors(this.employeeForm);
+    // console.log(this.formErrors);
+  }
+
+  // getter for skills formarray to be used in html
+  get skills(): FormArray{
+    return (this.employeeForm.get('skills') as FormArray)
   }
 
   onSubmit(): void {

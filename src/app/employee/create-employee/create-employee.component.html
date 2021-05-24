@@ -14,10 +14,10 @@ Note: With brackets we bind variable, which is declared in our component. Withou
         <div class="card-header">
             <h3 class="card-title">Create Employee</h3>
         </div>
-        <div class="card-block">
-            <div class="form-group">
-                <label class="col-sm-4 control-label" for="fullName">Full Name</label>
-                <div class="col-sm-8">
+        <div class="card-block mt-3">
+            <div class="form-group row">
+                <label class="col-sm-2 control-label ml-3" for="fullName">Full Name</label>
+                <div class="col-sm-4">
                     <!--
                         1. Dynalically adding bootstrap class "is-invalid" using "[ngClass]" directive, to show red outline to input box, on condition that the textbox has been touched and left one time
                         and there is validation error
@@ -35,10 +35,10 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Contact Preference</label>
+            <div class="form-group row">
+                <label class="col-sm-2 control-label ml-3">Contact Preference</label>
                 <!-- Adding radio buttons for Proficiency field-->
-                <div class="col-md-10">
+                <div class="col-md-4">
                     <label class="radio-inline px-3">
                         <input class="form-control" formControlName="contactPreference" type="radio" value="email">
                         Email
@@ -51,9 +51,9 @@ Note: With brackets we bind variable, which is declared in our component. Withou
             </div>
 
             <div formGroupName="emailGroup">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="email">Email</label>
-                    <div class="col-sm-8">
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label ml-3" for="email">Email</label>
+                    <div class="col-sm-4">
                         <input class="form-control" id="email" formControlName="email" type="text"
                             [ngClass]="{'is-invalid': formErrors.email }" (blur)="logValidationErrors()">
                         <div class="invalid-feedback" *ngIf="formErrors.email">
@@ -62,9 +62,9 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="confirmEmail">Confirm Email</label>
-                    <div class="col-sm-8">
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label ml-3" for="confirmEmail">Confirm Email</label>
+                    <div class="col-sm-4">
                         <input class="form-control" id="confirmEmail" formControlName="confirmEmail" type="text"
                             [ngClass]="{'is-invalid': formErrors.confirmEmail || formErrors.emailGroup}"
                             (blur)="logValidationErrors()">
@@ -75,9 +75,9 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label" for="phone">Phone</label>
-                <div class="col-sm-8">
+            <div class="form-group row">
+                <label class="col-sm-2 control-label ml-3" for="phone">Phone</label>
+                <div class="col-sm-4">
                     <input class="form-control" id="phone" formControlName="phone" type="text"
                         [ngClass]="{'is-invalid': formErrors.phone}" (blur)="logValidationErrors()">
                     <div class="invalid-feedback" *ngIf="formErrors.phone">
@@ -86,60 +86,94 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                 </div>
             </div>
 
-            <div formGroupName="skills">
-
+            <div class="card bg-light">
                 <div class="form-group">
-
-                    <label class="col-sm-4 control-label" for="skillName">Skill</label>
-                    <div class="col-sm-8 px-3">
-                        <input class="form-control" id="skillName" formControlName="skillName" type="text"
-                            [ngClass]="{'is-invalid': formErrors.skillName}" (blur)="logValidationErrors()">
-                        <div class="invalid-feedback" *ngIf="formErrors.skillName">
-                            <span>{{ formErrors.skillName }}</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" for="experienceInYears">Experience (In Years)</label>
-                    <div class="col-sm-8 px-3">
-                        <input class="form-control" id="experienceInYears" formControlName="experienceInYears"
-                            type="text" [ngClass]="{'is-invalid': formErrors.experienceInYears}"
-                            (blur)="logValidationErrors()">
-                        <div class="invalid-feedback" *ngIf="formErrors.experienceInYears">
-                            <span>{{ formErrors.experienceInYears }}</span>
-                        </div>
+                    <div class="col-md-offset-2 col-md-4 mt-3">
+                        <button type="button" class="btn btn-primary" (click)="addSkillButtonClick()"
+                            [disabled]="employeeForm.get('skills')?.invalid">
+                            Add Skill
+                        </button>
                     </div>
                 </div>
+                <div formArrayName="skills" *ngFor="let skill of skills.controls; let i=index;">
+                    <!--horizontal line as separator when we have more than one skill group-->
+                    <hr *ngIf="i>0">
+                    <!--formGroupName we are binding to a variable so using square brackets-->
+                    <div [formGroupName]="i">
 
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Proficiency</label>
-                    <!-- Adding radio buttons for Proficiency field-->
-                    <div class="col-md-10">
-                        <label class="radio-inline px-3">
-                            <input class="form-control" formControlName="proficiency" type="radio" value="beginner"
-                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
-                            Beginner
-                        </label>
-                        <label class="radio-inline px-3">
-                            <input class="form-control" formControlName="proficiency" type="radio" value="intermediate"
-                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
-                            Intermediate
-                        </label>
-                        <label class="radio-inline px-3">
-                            <input class="form-control" formControlName="proficiency" type="radio" value="advanced"
-                                (blur)="logValidationErrors()" [ngClass]="{'is-invalid': formErrors.proficiency}">
-                            Advanced
-                        </label>
-                        <div class="invalid-feedback" *ngIf="formErrors.proficiency">
-                            <span>{{ formErrors.proficiency }}</span>
+                        <div class="form-group row">
+                            <!-- [for]="'skillName' + i" --property binding doesn't work with element which doesn't have corresponding dom property,
+                                so we have to use attribute binding by prefixing "attr" in their name so, [attr.for]="'skillName' + i" -->
+                            <label class="col-sm-2 control-label ml-3" [attr.for]="'skillName' + i">Skill</label>
+                            <div class="col-sm-4">
+                                <!-- [id]="'skillName' + i" --property binding, only works on element which has corresponding dom property, 
+                                    other way using interpolation id={{'skillName' + i}}  
+                                    We will use loop variable skill to get reference to current control as in skill.get('skillName')?.invalid
+                                -->
+                                <input class="form-control" [id]="'skillName' + i" formControlName="skillName"
+                                    type="text"
+                                    [ngClass]="{'is-invalid': skill.get('skillName')?.invalid && skill.get('skillName')?.touched}">
+                                <div class="invalid-feedback"
+                                    *ngIf="skill.get('skillName')?.errors?.required && skill.get('skillName')?.touched">
+                                    <span>Skill Name is required</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-5" *ngIf="skills.length > 1">
+                                <button type="button" class="btn btn-primary btn-danger btn-sm float-right"
+                                    title="Delete Skill" (click)="removeSkillButtonClick(i)">
+                                    <fa-icon [icon]="faWindowClose"></fa-icon>
+                                </button>
+                            </div>
                         </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label ml-3" [attr.for]="'experienceInYears' + i">Experience
+                                (In
+                                Years)</label>
+                            <div class="col-sm-4 px-3">
+                                <input class="form-control" [id]="'experienceInYears'+ i"
+                                    formControlName="experienceInYears" type="text"
+                                    [ngClass]="{'is-invalid': skill.get('experienceInYears')?.invalid && skill.get('experienceInYears')?.touched}">
+                                <div class="invalid-feedback"
+                                    *ngIf="skill.get('experienceInYears')?.errors?.required && skill.get('experienceInYears')?.touched">
+                                    <span>Experience (in years) is required</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row"
+                            [ngClass]="{'is-invalid': skill.get('proficiency')?.invalid && skill.get('proficiency')?.touched}">
+                            <label class="col-md-2 control-label ml-3">Proficiency</label>
+                            <!-- Adding radio buttons for Proficiency field-->
+                            <div class="col-md-6">
+                                <label class="radio-inline px-3">
+                                    <input class="form-control" formControlName="proficiency" type="radio"
+                                        value="beginner">
+                                    Beginner
+                                </label>
+                                <label class="radio-inline px-3">
+                                    <input class="form-control" formControlName="proficiency" type="radio"
+                                        value="intermediate">
+                                    Intermediate
+                                </label>
+                                <label class="radio-inline px-3">
+                                    <input class="form-control" formControlName="proficiency" type="radio"
+                                        value="advanced">
+                                    Advanced
+                                </label>
+                                <div class="invalid-feedback"
+                                    *ngIf="skill.get('proficiency')?.errors?.required && skill.get('proficiency')?.touched">
+                                    <span>Proficiency is required</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
         </div>
+        <br />
+        <br />
         <div class="card-footer">
             <button class="btn btn-primary mr-3" type="submit">Save</button>
             <button class="btn btn-primary" type="button" (click)="onLoadDataClick()">Load Data</button>
