@@ -92,6 +92,9 @@ export class CreateEmployeeComponent implements OnInit {
   }
 
   editEmployee(employee: IEmployee){
+    /*
+    To bind existing data to form control, we use patchValue
+    */
     this.employeeForm.patchValue({
       fullName: employee.fullName,
       contactPreference: employee.contactPreference,
@@ -100,7 +103,12 @@ export class CreateEmployeeComponent implements OnInit {
         confirmEmail: employee.email
       },
       phone: employee.phone
-    })
+    });
+
+     /*
+    To bind existing data to form array, we use setControl
+    */
+    this.employeeForm.setControl('skills', this.setExistingSkills(employee.skills));
   }
 
   addSkillFormGroup(): FormGroup {
@@ -116,9 +124,23 @@ export class CreateEmployeeComponent implements OnInit {
   }
   
   removeSkillButtonClick(skillGroupIndex: number): void{
-    (this.employeeForm.get('skills') as FormArray).removeAt(skillGroupIndex);
+    const skillsFormArray = (this.employeeForm.get('skills') as FormArray);
+    skillsFormArray.removeAt(skillGroupIndex);
+    skillsFormArray.markAsDirty();
+    skillsFormArray.markAsTouched();
   }
 
+  setExistingSkills(skillSets: ISkill[]): FormArray {
+    const formArray = new FormArray([]);
+    skillSets.forEach(s => {
+      formArray.push(this.formBuilder.group({
+        skillName: [s.skillName, Validators.required],
+        proficiency: [s.proficiency, Validators.required],
+        experienceInYears: [s.experienceInYears, Validators.required]
+      }));
+    });
+    return formArray;
+  }
 
  createForm(){
  
