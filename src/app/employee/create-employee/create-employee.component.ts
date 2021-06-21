@@ -24,6 +24,7 @@ export class CreateEmployeeComponent implements OnInit {
     email: new FormControl()
   });
 
+  pageTitle: string = '';
   fullNameLength: number = 0;
 
   domainWeWantToValidateAgainst: string = "test.com";
@@ -34,7 +35,7 @@ export class CreateEmployeeComponent implements OnInit {
     'fullName': {
       'required': 'Full Name is required.',
       'minlength': 'Full Name must be greater than 2 characters.',
-      'maxlength': 'Full Name must be greater less than 30 characters.',
+      'maxlength': 'Full Name must be less than 30 characters.',
     },
     'email': {
       'required': 'Email is required',
@@ -82,7 +83,20 @@ export class CreateEmployeeComponent implements OnInit {
     const empId = Number(this._route.snapshot.paramMap.get('id'));
     this._route.paramMap.subscribe(params => {
       if (empId) {
+        this.pageTitle = "Edit Employee";
         this.getEmployee(empId);
+      }
+      else
+      {
+        this.pageTitle = "Create Employee";
+        this.employee = {
+          id: -1,
+          fullName: '',
+          phone: undefined,
+          email: '',
+          contactPreference: '',
+          skills: []
+        }
       }
     });
   }
@@ -337,10 +351,20 @@ export class CreateEmployeeComponent implements OnInit {
 
   onSubmit(): void {
     this.MapFormValuesToEmployeeModel();
-    this.employeeService.updateEmployee(this.employee).subscribe(
-      () => this.router.navigate(['list']),
-      (err: any) => console.log(err)
-    );
+    if(this.employee.id === -1)
+    {
+      this.employeeService.addEmployee(this.employee).subscribe(
+        () => this.router.navigate(['list']),
+        (err: any) => console.log(err)
+        );
+    }
+    else if(this.employee.id)
+    {
+      this.employeeService.updateEmployee(this.employee).subscribe(
+        () => this.router.navigate(['list']),
+        (err: any) => console.log(err)
+        );
+    }
   }
 
   MapFormValuesToEmployeeModel() {

@@ -12,7 +12,7 @@ Note: With brackets we bind variable, which is declared in our component. Withou
 <form class="form-horizontal" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Create Employee</h3>
+            <h3 class="card-title">{{ pageTitle }}</h3>
         </div>
         <div class="card-block mt-3">
             <div class="form-group row">
@@ -25,10 +25,11 @@ Note: With brackets we bind variable, which is declared in our component. Withou
                         3. *ngIf - checking condition to show different message on different condition
                         4. (blur) - binding to lose focus event in parantheses ie. blur event
                     -->
-                    <input class="form-control" id="fullName" formControlName="fullName" type="text"
+                    <input class="form-control validate" id="fullName" formControlName="fullName" type="text"
                         [ngClass]="{'is-invalid': formErrors.fullName}" (blur)="logValidationErrors()">
+                    <span data-error="wrong" data-success="right">{{ formErrors.fullName }}</span>
                     <div class="invalid-feedback" *ngIf="formErrors.fullName">
-                        <span>{{ formErrors.fullName }}</span>
+
                     </div>
                     <!-- Binding component property through interpolation -->
                     <!-- <label>{{ fullNameLength }}</label> -->
